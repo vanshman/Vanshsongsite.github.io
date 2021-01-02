@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Type your favourite song - VANSHSONGSITE</title>
+    </head>
+    <body>
+        <center>
+            <nav style="background-color: rgb(29, 27, 27); color: white;">
+                <h1>Type your favourite song</h1>
+                <i><b>type your favourite song and it will be added it</b></i><br>
+                <button onclick="window.history.back()" style="color:rgb(175, 175, 138 );">BACK</button>
+            </nav><br><br><br><br><br><br><br><br><br>
+        <input type="text" id="comment"><br>
+        <button onclick="post()">Post</button>
+        <ul id="comments"></ul></center>
+        </center>
+
+            <!-- The core Firebase JS SDK is always required and must be listed first -->
+            <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-app.js"></script>
+            <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-database.js"></script>
+
+            <!-- TODO: Add SDKs for Firebase products that you want to use
+                https://firebase.google.com/docs/web/setup#available-libraries -->
+            <script src="https://www.gstatic.com/firebasejs/8.2.1/firebase-analytics.js"></script>
+
+            <script>
+            // Your web app's Firebase configuration
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            var firebaseConfig = {
+                apiKey: "AIzaSyB0FJWTqRjcuuH59AFJ4S5Xn2APc0VYfNY",
+                authDomain: "songsite-3dcda.firebaseapp.com",
+                projectId: "songsite-3dcda",
+                storageBucket: "songsite-3dcda.appspot.com",
+                messagingSenderId: "782145973398",
+                appId: "1:782145973398:web:9ad4cb038dc6abfe44a6b7",
+                measurementId: "G-ERVXCD9HVN"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            firebase.analytics();
+            var myName = prompt("Enter your name");
+            function post() {
+                // get message
+                var message = document.getElementById("comment").value;
+        
+                // save in database
+                firebase.database().ref("message").push().set({
+                    "sender": myName,
+                    "message": message
+                });
+        
+                // prevent form from submitting
+                return false;
+                
+            }
+        </script>
+        <script>
+            firebase.database().ref("message").on("child_added", function (snapshot) {
+                var html = "";
+                // give each message a unique ID
+                html += "<li id='message-" + snapshot.key + "'>";
+                // show delete button if message is sent by me
+                if (snapshot.val().sender == myName) {
+                    html += "<button data-id='" + snapshot.key + "' onclick='deleteMessage(this);'>";
+                        html += "Delete";
+                    html += "</button>";
+                }
+                html += snapshot.val().sender + ": " + snapshot.val().message;
+                html += "</li>";
+        
+                document.getElementById("comments").innerHTML += html;
+            });
+            function deleteMessage(self) {
+                // get message ID
+                var messageId = self.getAttribute("data-id");
+            
+                // delete message
+                firebase.database().ref("message").child(messageId).remove();
+            }
+            
+            // attach listener for delete message
+            firebase.database().ref("message").on("child_removed", function (snapshot) {
+                // remove message node
+                document.getElementById("message-" + snapshot.key).innerHTML = "This message has been removed";
+            });
+        </script>
+    </body>
+</html>
